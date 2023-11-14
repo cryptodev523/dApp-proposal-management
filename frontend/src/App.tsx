@@ -17,6 +17,7 @@ if (token) {
 export const App = () => {
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [account, setAccount] = useState<string | null>(null);
+  const [proposals, setProposals] = useState<IProposal[]>([]);
 
   useEffect(() => {
     if ((window as any).ethereum) {
@@ -26,6 +27,17 @@ export const App = () => {
       console.error("Please install MetaMask!");
     }
   }, []);
+
+  useEffect(() => {
+    const fetchProposals = async () => {
+      const response = await axios.get(`${BE_URL}/proposals`);
+      setProposals(response.data);
+    };
+
+    if (account) {
+      fetchProposals();
+    }
+  }, [account]);
 
   const connectWallet = async () => {
     if (web3) {
@@ -66,7 +78,7 @@ export const App = () => {
             {account ? <ProposalForm /> : <ConnectButton />}
           </Box>
           <Box width="100%" maxW="800px">
-            <ProposalList />
+            {account && <ProposalList proposals={proposals} />}
           </Box>
         </VStack>
       </ChakraProvider>

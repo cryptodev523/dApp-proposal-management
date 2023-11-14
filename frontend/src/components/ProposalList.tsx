@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Box,
   Button,
@@ -11,24 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { FaThumbsUp, FaThumbsDown } from "react-icons/fa";
 
-export const ProposalList = () => {
-  const [proposals, setProposals] = useState<IProposal[]>([
-    {
-      title: "title1",
-      description: "description1",
-      id: "0",
-      yesVotes: "0",
-      noVotes: "1",
-    },
-    {
-      title: "title2",
-      description: "description2",
-      id: "1",
-      yesVotes: "1",
-      noVotes: "0",
-    },
-  ]);
-
+export const ProposalList = ({ proposals }: { proposals: IProposal[] }) => {
   const handleVote = (id: string, vote: boolean) => {};
 
   return (
@@ -48,6 +30,7 @@ export const ProposalList = () => {
               </VStack>
               <Flex justify="space-between" gap={2}>
                 <Button
+                  colorScheme="green"
                   onClick={() => handleVote(proposal.id, true)}
                   leftIcon={<Icon as={FaThumbsUp} />}
                 >
