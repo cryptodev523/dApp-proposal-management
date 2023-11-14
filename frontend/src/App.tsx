@@ -4,7 +4,15 @@ import { ProposalList } from "./components/ProposalList";
 import { Web3Context } from "./contexts/Web3Context";
 import { useEffect, useState } from "react";
 import { Web3 } from "web3";
-import { ConnectButton } from "./components/ConnetButton";
+import { ConnectButton } from "./components/ConnectButton";
+import axios from "axios";
+
+const BE_URL = process.env.REACT_APP_BE_SERVER;
+
+const token = localStorage.getItem("token");
+if (token) {
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+}
 
 export const App = () => {
   const [web3, setWeb3] = useState<Web3 | null>(null);
@@ -26,6 +34,14 @@ export const App = () => {
           method: "eth_requestAccounts",
         });
         setAccount(accounts[0]);
+        // authenticate
+        const response = await axios.post(`${BE_URL}/login`, {
+          address: accounts[0],
+        });
+        const token = response.data.accessToken;
+
+        localStorage.setItem("token", token);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       } catch (error) {
         console.error("Failed to connect wallet", error);
       }

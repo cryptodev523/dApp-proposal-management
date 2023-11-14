@@ -3,12 +3,16 @@ const { createServer } = require("http");
 const socketIO = require("socket.io");
 const ProposalContract = require("../contracts/build/contracts/ProposalContract.json");
 const { Web3 } = require("web3");
+const jwt = require("jsonwebtoken");
+const cors = require("cors");
 
 const app = express();
 const server = createServer(app);
 const io = socketIO(server);
 
 const web3 = new Web3("http://localhost:7545");
+
+const JWT_SECRET = "passphrase";
 
 const proposalContract = new web3.eth.Contract(
   ProposalContract.abi,
@@ -17,9 +21,42 @@ const proposalContract = new web3.eth.Contract(
 
 // Parse incoming request with JSON payloads.
 app.use(express.json());
+app.use(cors());
+
+// Middleware for JWT authentication
+const authenticateJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader) {
+    const token = authHeader.split(" ")[1];
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        return res.sendStatus(403);
+      }
+
+      req.user = user;
+      next();
+    });
+  } else {
+    res.sendStatus(401);
+  }
+};
+
+// API to login
+app.post("/login", (req, res) => {
+  const { address } = req.body;
+  if (address) {
+    const user = { address };
+    const accessToken = jwt.sign(user, JWT_SECRET, { expiresIn: "1h" });
+    res.json({ accessToken });
+  } else {
+    res.send("Please provide an address");
+  }
+});
 
 // API to fetch all proposals
-app.get("/proposals", async (req, res) => {
+app.get("/proposals", authenticateJWT, async (req, res) => {
   try {
     let proposals = await proposalContract.methods.readProposals().call();
     // Convert BigInt to string
@@ -39,7 +76,7 @@ app.get("/proposals", async (req, res) => {
 
 // API to create proposal
 
-app.post("/proposals", async (req, res) => {
+app.post("/proposals", authenticateJWT, async (req, res) => {
   try {
     const { title, description, senderAddress } = req.body;
     let proposal = await proposalContract.methods
@@ -61,7 +98,7 @@ app.post("/proposals", async (req, res) => {
 
 // API to vote on a proposal
 
-app.post("/proposals/:id/vote", async (req, res) => {
+app.post("/proposals/:id/vote", authenticateJWT, async (req, res) => {
   try {
     const id = req.params.id;
     const { isYesVote, voterAddress } = req.body;
