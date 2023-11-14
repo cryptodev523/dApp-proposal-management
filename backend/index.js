@@ -78,7 +78,8 @@ app.get("/proposals", authenticateJWT, async (req, res) => {
 
 app.post("/proposals", authenticateJWT, async (req, res) => {
   try {
-    const { title, description, senderAddress } = req.body;
+    const { title, description } = req.body;
+    const senderAddress = req.user.address;
     let proposal = await proposalContract.methods
       .createProposal(title, description)
       .send({ from: senderAddress, gas: 5000000 });
@@ -101,7 +102,8 @@ app.post("/proposals", authenticateJWT, async (req, res) => {
 app.post("/proposals/:id/vote", authenticateJWT, async (req, res) => {
   try {
     const id = req.params.id;
-    const { isYesVote, voterAddress } = req.body;
+    const { isYesVote } = req.body;
+    const voterAddress = req.user.address;
     await proposalContract.methods
       .voteOnProposal(id, isYesVote)
       .send({ from: voterAddress });
