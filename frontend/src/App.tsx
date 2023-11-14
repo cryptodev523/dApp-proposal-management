@@ -1,4 +1,4 @@
-import { ChakraProvider, Box, Grid, theme } from "@chakra-ui/react";
+import { ChakraProvider, Box, theme, VStack } from "@chakra-ui/react";
 import { ProposalForm } from "./components/ProposalForm";
 import { ProposalList } from "./components/ProposalList";
 import { Web3Context } from "./contexts/Web3Context";
@@ -37,12 +37,22 @@ export const App = () => {
   return (
     <Web3Context.Provider value={{ web3, account, connectWallet }}>
       <ChakraProvider theme={theme}>
-        <Box textAlign="center" fontSize="xl">
-          <Grid minH="100vh" p={3}>
+        <VStack
+          spacing={8}
+          align="center"
+          justify="center"
+          style={{
+            minHeight: "100vh",
+            padding: "2rem",
+          }}
+        >
+          <Box width="100%" maxW="800px" textAlign="center" fontSize="xl">
             {account ? <ProposalForm /> : <ConnectButton />}
+          </Box>
+          <Box width="100%" maxW="800px">
             <ProposalList />
-          </Grid>
-        </Box>
+          </Box>
+        </VStack>
       </ChakraProvider>
     </Web3Context.Provider>
   );

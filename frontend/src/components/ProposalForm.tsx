@@ -1,10 +1,10 @@
 import {
-  Box,
   Button,
   FormControl,
   FormLabel,
   Input,
   Text,
+  VStack,
 } from "@chakra-ui/react";
 import { useState } from "react";
 
@@ -17,7 +17,7 @@ export const ProposalForm = () => {
   };
 
   return (
-    <Box my={12}>
+    <VStack spacing={4} align="stretch">
       <Text fontSize="3xl" mb={6}>
         Create a Proposal
       </Text>
@@ -29,6 +29,7 @@ export const ProposalForm = () => {
             placeholder="Proposal Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            isRequired
           />
         </FormControl>
         <FormControl mt={6}>
@@ -38,12 +39,13 @@ export const ProposalForm = () => {
             placeholder="Proposal Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            isRequired
           />
         </FormControl>
-        <Button width="full" type="submit" mt={6}>
+        <Button width="100%" type="submit" colorScheme="teal" mt={6}>
           Submit
         </Button>
       </form>
-    </Box>
+    </VStack>
   );
 };
