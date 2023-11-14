@@ -15,10 +15,21 @@ const proposalContract = new web3.eth.Contract(
   "0xc8B57335a31917360C584866514C4f8eC1B60272"
 );
 
+// Parse incoming request with JSON payloads.
+app.use(express.json());
+
 // API to fetch all proposals
 app.get("/proposals", async (req, res) => {
   try {
-    const proposals = await proposalContract.methods.readProposals().call();
+    let proposals = await proposalContract.methods.readProposals().call();
+    // Convert BigInt to string
+    proposals = proposals.map((proposal) => ({
+      title: proposal.title,
+      description: proposal.description,
+      id: proposal.id.toString(),
+      yesVotes: proposal.yesVotes.toString(),
+      noVotes: proposal.noVotes.toString(),
+    }));
     res.json(proposals);
   } catch (error) {
     console.error(error);
@@ -31,10 +42,14 @@ app.get("/proposals", async (req, res) => {
 app.post("/proposals", async (req, res) => {
   try {
     const { title, description, senderAddress } = req.body;
-    const proposal = await proposalContract.methods
+    let proposal = await proposalContract.methods
       .createProposal(title, description)
-      .send({ from: senderAddress });
-
+      .send({ from: senderAddress, gas: 5000000 });
+    // Convert BigInt to string
+    proposal = {
+      transactionHash: proposal.transactionHash,
+      blockHash: proposal.blockHash,
+    };
     // Emit a `newProposal` event to notify all connected clients
     io.emit("newProposal", proposal);
     res.status(201).send("Proposal submitted successfully");
@@ -48,7 +63,8 @@ app.post("/proposals", async (req, res) => {
 
 app.post("/proposals/:id/vote", async (req, res) => {
   try {
-    const { id, isYesVote, voterAddress } = req.body;
+    const id = req.params.id;
+    const { isYesVote, voterAddress } = req.body;
     await proposalContract.methods
       .voteOnProposal(id, isYesVote)
       .send({ from: voterAddress });
