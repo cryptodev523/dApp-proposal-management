@@ -10,11 +10,6 @@ import io, { Socket } from "socket.io-client";
 
 const BE_URL = process.env.REACT_APP_BE_SERVER;
 
-const token = localStorage.getItem("token");
-if (token) {
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-}
-
 export const App = () => {
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [account, setAccount] = useState<string | null>(null);
@@ -29,12 +24,6 @@ export const App = () => {
       console.error("Please install MetaMask!");
     }
   }, []);
-
-  useEffect(() => {
-    if (account) {
-      fetchProposals();
-    }
-  }, [account]);
 
   useEffect(() => {
     return () => {
@@ -64,7 +53,6 @@ export const App = () => {
         // Clear old token from axios headers
         delete axios.defaults.headers.common["Authorization"];
 
-        localStorage.setItem("token", token);
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         // Create socket connection
@@ -76,6 +64,9 @@ export const App = () => {
 
         // Listen for newVote event
         socket.on("newVote", fetchProposals);
+
+        // Fetch proposals
+        fetchProposals();
       } catch (error) {
         console.error("Failed to connect wallet", error);
       }

@@ -55,7 +55,7 @@ app.post("/login", (req, res) => {
   const { address } = req.body;
   if (address) {
     const user = { address };
-    const accessToken = jwt.sign(user, JWT_SECRET, { expiresIn: "1h" });
+    const accessToken = jwt.sign(user, JWT_SECRET, { expiresIn: "24h" });
     res.json({ accessToken });
   } else {
     res.send("Please provide an address");
