@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Web3 } from "web3";
 import { ConnectButton } from "./components/ConnectButton";
 import axios from "axios";
+import io, { Socket } from "socket.io-client";
 
 const BE_URL = process.env.REACT_APP_BE_SERVER;
 
@@ -18,6 +19,7 @@ export const App = () => {
   const [web3, setWeb3] = useState<Web3 | null>(null);
   const [account, setAccount] = useState<string | null>(null);
   const [proposals, setProposals] = useState<IProposal[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
     if ((window as any).ethereum) {
@@ -29,15 +31,22 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    const fetchProposals = async () => {
-      const response = await axios.get(`${BE_URL}/proposals`);
-      setProposals(response.data);
-    };
-
     if (account) {
       fetchProposals();
     }
   }, [account]);
+
+  useEffect(() => {
+    return () => {
+      // Disconnect socket when component unmounts
+      if (socket) socket.disconnect();
+    };
+  }, [socket]);
+
+  const fetchProposals = async () => {
+    const response = await axios.get(`${BE_URL}/proposals`);
+    setProposals(response.data);
+  };
 
   const connectWallet = async () => {
     if (web3) {
@@ -52,8 +61,21 @@ export const App = () => {
         });
         const token = response.data.accessToken;
 
+        // Clear old token from axios headers
+        delete axios.defaults.headers.common["Authorization"];
+
         localStorage.setItem("token", token);
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+        // Create socket connection
+        const socket = io(BE_URL as string);
+        setSocket(socket);
+
+        // Listen for newProposal event
+        socket.on("newProposal", fetchProposals);
+
+        // Listen for newVote event
+        socket.on("newVote", fetchProposals);
       } catch (error) {
         console.error("Failed to connect wallet", error);
       }

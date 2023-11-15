@@ -55,7 +55,7 @@ export const ProposalList = ({ proposals }: { proposals: IProposal[] }) => {
         {proposals.map((proposal) => (
           <ListItem key={proposal.id}>
             <Flex justify="space-between" align="center" width="100%">
-              <VStack>
+              <VStack textAlign="left" alignItems="flex-start">
                 <Text fontSize="2xl" fontWeight="bold">
                   {proposal.title}
                 </Text>

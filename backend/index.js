@@ -8,7 +8,12 @@ const cors = require("cors");
 
 const app = express();
 const server = createServer(app);
-const io = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    origin: "http://localhost:3001",
+    methods: ["GET", "POST"],
+  },
+});
 
 const web3 = new Web3("http://localhost:7545");
 
