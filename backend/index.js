@@ -5,23 +5,25 @@ const ProposalContract = require("../contracts/build/contracts/ProposalContract.
 const { Web3 } = require("web3");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const app = express();
 const server = createServer(app);
 const io = socketIO(server, {
   cors: {
-    origin: "http://localhost:3001",
+    origin: process.env.FRONTEND_URL,
     methods: ["GET", "POST"],
   },
 });
 
-const web3 = new Web3("http://localhost:7545");
+const web3 = new Web3(process.env.WEB3_PROVIDER_URL);
 
 const JWT_SECRET = "passphrase";
 
 const proposalContract = new web3.eth.Contract(
   ProposalContract.abi,
-  "0xc8B57335a31917360C584866514C4f8eC1B60272"
+  process.env.CONTRACT_ADDRESS
 );
 
 // Parse incoming request with JSON payloads.
