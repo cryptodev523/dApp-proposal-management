@@ -86,6 +86,9 @@ app.get("/proposals", authenticateJWT, async (req, res) => {
 app.post("/proposals", authenticateJWT, async (req, res) => {
   try {
     const { title, description } = req.body;
+    if (!title || !description) {
+      return res.status(500).send("Please provide title and description");
+    }
     const senderAddress = req.user.address;
     let proposal = await proposalContract.methods
       .createProposal(title, description)
@@ -132,3 +135,5 @@ io.on("connection", (socket) => {
 server.listen(3000, () => {
   console.log("Server is running on port 3000");
 });
+
+module.exports = app;
