@@ -30,16 +30,36 @@ cd frontend
 npm install
 ```
 
-3. Start Ganache and create a workspace with the truffle-config.js file.
+3. In the `backend` directory, create a `.env` file and add the following variables:
 
-4. Compile and migrate the smart contracts:
+```bash
+FRONTEND_URL=<your-frontend-url>
+WEB3_PROVIDER_URL=<your-web3-provider-url>
+CONTRACT_ADDRESS=<your-contract-address>
+```
+
+Replace <your-frontend-url>, <your-web3-provider-url>, and <your-contract-address> with your actual frontend URL, Web3 provider URL, and contract address, respectively.
+
+4. In the `frontend` directory, create a `.env` file and add the following variable:
+
+```bash
+REACT_APP_BE_SERVER=<your-backend-url>
+```
+
+Replace <your-backend-url> with your actual backend URL.
+
+5. Start Ganache and create a workspace with the truffle-config.js file.
+
+Reference: https://trufflesuite.com/docs/ganache/quickstart
+
+6. Compile and migrate the smart contracts:
 
 ```bash
 truffle compile
 truffle migrate
 ```
 
-5. Import the Ganache accounts into Metamask using the private keys provided by Ganache.
+7. Import the Ganache accounts into Metamask using the private keys provided by Ganache.
 
 ## Running the Application
 
